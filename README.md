@@ -129,9 +129,20 @@ Issue #1550 (regex fix) passes consistently. Issue #1481 (Go reflection type che
 - Comparison against accepted PRs for quality evaluation
 - JSONL trace logging for full observability
 
+## Tests
+
+```bash
+# Run all tests (no network)
+python -m pytest tests/ -v -m "not network"
+
+# Run including GitHub API tests (requires network)
+python -m pytest tests/ -v
+```
+
+83 tests covering: types, tools (dispatch + execution), localizer (all 5 extraction steps), config, prompts (all 8 builders), logging (TraceLogger + TokenTracker), and GitHub API.
+
 ## What's Incomplete
 
-- No unit tests (time constraint)
 - No caching of cloned repos between runs
 - AI_LOG.md could be more detailed
 
