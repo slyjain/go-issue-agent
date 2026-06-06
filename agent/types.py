@@ -16,7 +16,8 @@ class AgentConfig:
     base_commit:str | None =None
     max_iterations: int =6
     max_tokens_total: int = 200_000
-    model: str = "claude-sonnet-4-5-20250929"
+    # OpenRouter model name (uses OpenAI-compatible API)
+    model: str = "anthropic/claude-sonnet-4-5"
     # LLM randomness is 0
     temperature: float = 0.0
     workdir: Path =Path("workspace")
