@@ -12,139 +12,169 @@ MAX_SYMBOL_LINES=50
 MAX_VALIDATION_CHARS=3000
 TOOL_TIMEOUT=60
 
-TOOL_DEFINITION=[
+TOOL_DEFINITIONS = [
     {
-        "name":"search_code",
-        "description": (
-            "Search the repository using ripgrep. Returns matching lines with "
-            "file paths and line numbers. Use this FIRST to find relevant code, "
-            "symbol usages, and patterns before reading files."
-        ),
-        "input_schema":{
-            "type":"object",
-            "properties":{
-                "query":{
-                    "type":"string",
-                    "description":"Regex pattern to search for",
+        "type": "function",
+        "function": {
+            "name": "search_code",
+            "description": (
+                "Search the repository using ripgrep. Returns matching lines with "
+                "file paths and line numbers. Use this FIRST to find relevant code, "
+                "symbol usages, and patterns before reading files."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Regex pattern to search for",
+                    },
+                    "glob": {
+                        "type": "string",
+                        "description": "Optional file glob filter, e.g. '*.go'",
+                    },
                 },
-                "glob":{
-                     "type": "string",
-                    "description": "Optional file glob filter, e.g. '*.go'",
-                }
+                "required": ["query"],
             },
-            "required": ["query"],
-        }
-
-    },
-     {
-        "name": "read_file",
-        "description": (
-            "Read file contents with line numbers. Use after search_code to "
-            "understand full context of relevant files. Optionally specify a "
-            "line range to read a portion of a large file."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "Relative path from repo root",
-                },
-                "start_line": {
-                    "type": "integer",
-                    "description": "First line to read (1-indexed, optional)",
-                },
-                "end_line": {
-                    "type": "integer",
-                    "description": "Last line to read (inclusive, optional)",
-                },
-            },
-            "required": ["path"],
         },
     },
     {
-        "name": "list_dir",
-        "description": (
-            "List directory contents. Use to understand project structure "
-            "and find relevant files and packages."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "Relative path from repo root (use '.' for root)",
+        "type": "function",
+        "function": {
+            "name": "read_file",
+            "description": (
+                "Read file contents with line numbers. Use after search_code to "
+                "understand full context of relevant files. Optionally specify a "
+                "line range to read a portion of a large file."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Relative path from repo root",
+                    },
+                    "start_line": {
+                        "type": "integer",
+                        "description": "First line to read (1-indexed, optional)",
+                    },
+                    "end_line": {
+                        "type": "integer",
+                        "description": "Last line to read (inclusive, optional)",
+                    },
                 },
+                "required": ["path"],
             },
-            "required": ["path"],
         },
     },
     {
-        "name": "find_symbol",
-        "description": (
-            "Find where a Go symbol (function, type, variable, constant) is "
-            "defined and used. More precise than search_code for known symbol names."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string",
-                    "description": "The Go symbol name to find",
+        "type": "function",
+        "function": {
+            "name": "list_dir",
+            "description": (
+                "List directory contents. Use to understand project structure "
+                "and find relevant files and packages."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Relative path from repo root (use '.' for root)",
+                    },
                 },
+                "required": ["path"],
             },
-            "required": ["name"],
         },
     },
-     {
-        "name": "edit_file",
-        "description": (
-            "Apply a string replacement edit to a file. The old_str must appear "
-            "EXACTLY ONCE in the file — the edit fails if there are zero or "
-            "multiple matches. ALWAYS call run_validation after editing."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "Relative path from repo root",
+    {
+        "type": "function",
+        "function": {
+            "name": "find_symbol",
+            "description": (
+                "Find where a Go symbol (function, type, variable, constant) is "
+                "defined and used. More precise than search_code for known symbol names."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "The Go symbol name to find",
+                    },
                 },
-                "old_str": {
-                    "type": "string",
-                    "description": "The exact string to find and replace (must be unique in the file)",
-                },
-                "new_str": {
-                    "type": "string",
-                    "description": "The replacement string",
-                },
+                "required": ["name"],
             },
-            "required": ["path", "old_str", "new_str"],
         },
     },
-     {
-        "name": "run_validation",
-        "description": (
-            "Run the full Go validation pipeline: gofmt, go build, go vet, "
-            "go test, and golangci-lint (if available). Call this AFTER EVERY "
-            "edit to verify your changes compile, pass vet, and pass tests. "
-            "Steps are skipped if a prerequisite fails."
-        ),
-        "input_schema": {
-            "type": "object",
-            "properties": {
-                "scope": {
-                    "type": "string",
-                    "description": (
-                        "Package scope for testing, e.g. './...' or './pkg/validate'. "
-                        "Defaults to './...'."
-                    ),
+    {
+        "type": "function",
+        "function": {
+            "name": "edit_file",
+            "description": (
+                "Apply a string replacement edit to a file. The old_str must appear "
+                "EXACTLY ONCE in the file — the edit fails if there are zero or "
+                "multiple matches. ALWAYS call run_validation after editing."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "Relative path from repo root",
+                    },
+                    "old_str": {
+                        "type": "string",
+                        "description": "The exact string to find and replace (must be unique in the file)",
+                    },
+                    "new_str": {
+                        "type": "string",
+                        "description": "The replacement string",
+                    },
                 },
+                "required": ["path", "old_str", "new_str"],
             },
-            "required": [],
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_validation",
+            "description": (
+                "Run the full Go validation pipeline: gofmt, go build, go vet, "
+                "go test, and golangci-lint (if available). Call this AFTER EVERY "
+                "edit to verify your changes compile, pass vet, and pass tests. "
+                "Steps are skipped if a prerequisite fails."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "description": (
+                            "Package scope for testing, e.g. './...' or './pkg/validate'. "
+                            "Defaults to './...'."
+                        ),
+                    },
+                },
+                "required": [],
+            },
         },
     },
 ]
+
+
+def get_tools_for_phase(phase: str) -> list[dict]:
+    """Return the subset of TOOL_DEFINITIONS allowed in a given phase."""
+    phase_tools = {
+        "EXPLORE": {"search_code", "read_file", "list_dir", "find_symbol"},
+        "PLAN": set(),
+        "APPLY": {"edit_file", "run_validation", "read_file"},
+    }
+    allowed = phase_tools.get(phase, set())
+    return [t for t in TOOL_DEFINITIONS if t["function"]["name"] in allowed]
+
+
 #  ┌────────────────────┬─────────────────────────┬────────────────────────────┐
 #   │      Feature       │          grep           │        rg (ripgrep)        │
 #   ├────────────────────┼─────────────────────────┼────────────────────────────┤

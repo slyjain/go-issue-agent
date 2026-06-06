@@ -7,18 +7,6 @@ from agent.types import Issue
 
 _API = "https://api.github.com"
 
-# def fetch_issue(repo:str,number:int) -> Issue:
-#     url=f"{_API}/repos/{repo}/issues/{number}"
-#     req=urllib.request.Request(url,headers={"Accept":"application/vnd.github.v3+json"})
-#     with urllib.request.urlopen(req) as resp:
-#         data=json.loads(resp.read().decode())
-#     return Issue(
-#         number=data["number"],
-#         title=data["title"],
-#         body=data.get("body") or "",
-#         labels=[l["name"] for l in data.get("labels",[])],
-#         url=data["html_url"]
-#     )
 def fetch_issue(repo: str, number: int) -> Issue:
     url = f"{_API}/repos/{repo}/issues/{number}"
     req = urllib.request.Request(url, headers={"Accept": "application/vnd.github.v3+json"})
