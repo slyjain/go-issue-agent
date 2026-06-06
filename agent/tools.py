@@ -4,7 +4,7 @@ import os
 import subprocess
 from pathlib import Path
 
-from agent.tools import ToolResult
+from agent.types import ToolResult
 
 MAX_SEARCH_LINES=100
 MAX_READ_LINES=500

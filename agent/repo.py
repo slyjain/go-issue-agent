@@ -11,7 +11,7 @@ def clone_repo(repo:str,workdir:Path,shallow:bool=True)->Path:
     url=f"https://github.com/{repo}.git"
     cmd=["git","clone"]
     if shallow:
-        cmd+=["--depth",1]
+        cmd+=["--depth","1"]
     cmd+=[url,str(workdir)]
     subprocess.run(cmd,check=True,capture_output=True,text=True)
     return workdir
